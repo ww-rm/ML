@@ -27,7 +27,6 @@ def perceptron_base(train_x, train_y, yita):
 
     #w, b初始化为0
     w = np.zeros((feature_num, ))
-    w = np.array([-7., 1.])
     b = 0.0
 
     # 选取一个实例, index是当前的实例下标
