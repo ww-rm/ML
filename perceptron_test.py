@@ -12,7 +12,6 @@ train_x = np.concatenate(
 train_y = np.array(
     [1] * (N+bias) + [-1] * (N-bias)
 )
-print(np.concatenate((train_x, train_y.reshape(1, train_x.shape[1]))))
 
 result_base = perceptron_base(train_x, train_y, 1e-3)
 result_dual = perceptron_dual(train_x, train_y, 1e-3)

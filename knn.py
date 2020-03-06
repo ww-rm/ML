@@ -56,14 +56,14 @@ def knn_base(train_x, train_y, x, k=1, p=2):
 
 
 class KdTreeNode:
+    """KdTree的节点结构体"""
     def __init__(self, depth=-1, pre_node=None):
         self.depth = depth
         self.pre_node = pre_node  # type: KdTreeNode
         self.left_node = None  # type: KdTreeNode
         self.right_node = None  # type: KdTreeNode
-        self.vector = None  # type: subscriptable
+        self.vector = None
         self.category = None
-        # self.visit = False
 
 
 class KdTree:
@@ -71,6 +71,13 @@ class KdTree:
         self.root = None
 
     def make_tree(self, train_x, train_y):
+        """生成KdTree, 在使用search_tree方法之前需要调用一次
+        
+        输入:
+            train_x: 训练集, 列向量形式
+            train_y: 样本类别值, 一维数组
+        """
+        
         train_x = np.array(train_x, dtype=float)
         train_y = np.array(train_y, dtype=float)
 
@@ -78,7 +85,6 @@ class KdTree:
         self.total_num = train_x.shape[1]
 
         # 把y合并到x尾部
-        print(train_x.shape, train_y.reshape(1, self.total_num).shape)
         train_input = np.concatenate(
             (train_x, train_y.reshape(1, self.total_num))
         ).T
@@ -103,7 +109,7 @@ class KdTree:
             node.vector = train_input[median_num][:-1]
             node.category = train_input[median_num][-1]
 
-            print(node.depth, node.vector)
+            # print(node.depth, node.vector)
 
             # 右子树
             if len(train_input)-1 - median_num > 0:
@@ -119,6 +125,20 @@ class KdTree:
         print('KdTree has created.')
 
     def search_tree(self, x, k=1, p=2):
+        """搜索KdTree算法
+
+        输入:
+            x: 待判别的实例
+            k: k近邻
+            p: 距离公式范数
+        输出:
+            返回x在KdTree中对应的类别, 与train_y的取值有关
+        """
+
+        if self.root is None:
+            print("No KdTree!")
+            return
+
         x = np.array(x, dtype=float)
         k_neighbor = []
         node = self.root
