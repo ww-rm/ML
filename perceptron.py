@@ -46,6 +46,7 @@ def perceptron_base(train_x, train_y, yita):
             print("感知机迭代次数超过10000000次")
 
     def f(x):
+        x = np.array(x)
         return np.sign(w @ x + b)
 
     return (w, b, f)
@@ -98,6 +99,7 @@ def perceptron_dual(train_x, train_y, yita):
             print("感知机迭代次数超过10000000次")
 
     def f(x):
+        x = np.array(x)
         return np.sign(np.multiply(a.T, train_y) @ train_x.T @ x + b)
 
     return (a.T, b, f)
