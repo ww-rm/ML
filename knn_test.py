@@ -11,9 +11,9 @@ x = np.random.rand(2)*100
 
 # print(x)
 
-tree = KdTree()
-tree.make_tree(train_x, train_y)
-result = tree.search_tree(x, 5)
+tree = Knn()
+tree.fit(train_x, train_y)
+result = tree.predict(x, 5)
 print(result)
 
 plt.scatter(x[0], x[1], color='black', marker='p')

@@ -66,14 +66,15 @@ class KdTreeNode:
         self.category = None
 
 
-class KdTree:
+class Knn:
     def __init__(self):
-        self.root = None
+        self.total_num = None
+        self.feature_num = None
+        self.kd_tree = None
 
-    def make_tree(self, train_x, train_y):
-        """生成KdTree, 在使用search_tree方法之前需要调用一次
-        
-        输入:
+    def fit(self, train_x, train_y):
+        """
+        参数:
             train_x: 训练集, 列向量形式
             train_y: 样本类别值, 一维数组
         """
@@ -93,8 +94,8 @@ class KdTree:
         node_stack = []
 
         # 加入第一个根节点
-        self.root = KdTreeNode(depth=0)
-        node_stack.append((self.root, train_input))
+        self.kd_tree = KdTreeNode(depth=0)
+        node_stack.append((self.kd_tree, train_input))
 
         while node_stack:
             # 出栈一个节点, 预算一下中位数下标
@@ -122,26 +123,19 @@ class KdTree:
                 node.left_node = left_node
                 node_stack.append((left_node, train_input[:median_num]))
 
-        print('KdTree has created.')
+        return True
 
-    def search_tree(self, x, k=1, p=2):
-        """搜索KdTree算法
-
-        输入:
+    def predict(self, x, k=1, p=2):
+        """
+        参数:
             x: 待判别的实例
             k: k近邻
             p: 距离公式范数
-        输出:
-            返回x在KdTree中对应的类别, 与train_y的取值有关
         """
-
-        if self.root is None:
-            print("No KdTree!")
-            return
 
         x = np.array(x, dtype=float)
         k_neighbor = []
-        node = self.root
+        node = self.kd_tree
         node_stack = [node]
 
         # 搜索到根节点为止

@@ -23,7 +23,9 @@ train_y = np.array(
     [-1, -1, 1, 1, -1, -1, -1, 1, 1, 1, 1, 1, 1, 1, -1]
 )
 
+classifier = NaiveBayes()
+classifier.fit(train_x, train_y)
+r = classifier.predict([2, 4])
 
-r = naive_bayes(train_x, train_y, [2, 4])
 print(r)
 # out: -1

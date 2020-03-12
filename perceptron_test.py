@@ -13,6 +13,9 @@ train_y = np.array(
     [-1] * (N+bias) + [1] * (N-bias)
 )
 
+# classifier =  Perceptron()
+# classifier.fit(train_x, train_y)
+
 result_base = perceptron_base(train_x, train_y, 1e-3)
 result_dual = perceptron_dual(train_x, train_y, 1e-3)
 # print(result_base)
