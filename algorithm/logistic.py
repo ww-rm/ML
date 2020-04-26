@@ -2,6 +2,8 @@ import numpy as np
 
 
 class Logistic:
+    """逻辑斯蒂二分类模型"""
+    
     def __init__(self):
         self.total_num = None
         self.feature_num = None
