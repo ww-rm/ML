@@ -48,8 +48,6 @@ class Logistic:
                     self.w = new_w
                     flag = True
                     break
-            
-            
 
         self.b = self.w[-1]
         self.w = self.w[0:-1]
