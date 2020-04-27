@@ -5,7 +5,7 @@ def knn_base(train_x, train_y, x, k=1, p=2):
     """线性查找方式的knn算法
 
     输入:
-        train_x: 训练集, 列向量形式
+        train_x: 训练集, 每一行是一个样本
         train_y: 样本类别值, 一维数组
         x: 待预测的样本的特征向量
         k: k近邻
@@ -21,13 +21,13 @@ def knn_base(train_x, train_y, x, k=1, p=2):
     x = np.array(x, dtype=float)
 
     # 获得特征数与样本数
-    # feature_num = train_x.shape[0]
-    total_num = train_x.shape[1]
+    total_num = train_x.shape[0]
+    # feature_num = train_x.shape[1]
 
     # 计算所有的距离
     for i in range(total_num):
         distances.append(
-            (np.linalg.norm(x-train_x[..., i], ord=p), train_y[i])
+            (np.linalg.norm(x-train_x[i], ord=p), train_y[i])
         )
 
     # 按距离排序
@@ -57,6 +57,7 @@ def knn_base(train_x, train_y, x, k=1, p=2):
 
 class KdTreeNode:
     """KdTree的节点结构体"""
+
     def __init__(self, depth=-1, pre_node=None):
         self.depth = depth
         self.pre_node = pre_node  # type: KdTreeNode
@@ -75,20 +76,18 @@ class Knn:
     def fit(self, train_x, train_y):
         """
         参数:
-            train_x: 训练集, 列向量形式
+            train_x: 训练集, 每一行是一个样本
             train_y: 样本类别值, 一维数组
         """
-        
+
         train_x = np.array(train_x, dtype=float)
         train_y = np.array(train_y, dtype=float)
 
-        self.feature_num = train_x.shape[0]
-        self.total_num = train_x.shape[1]
-
+        self.total_num = train_x.shape[0]
+        self.feature_num = train_x.shape[1]
+        # print(train_x.shape, train_y.shape)
         # 把y合并到x尾部
-        train_input = np.concatenate(
-            (train_x, train_y.reshape(1, self.total_num))
-        ).T
+        train_input = np.concatenate((train_x, train_y.reshape(self.total_num, 1)), axis=1)
 
         # 节点栈
         node_stack = []
@@ -140,7 +139,7 @@ class Knn:
 
         # 搜索到根节点为止
         while node_stack:
-            
+
             while True:
                 node = node_stack[-1]
                 feature_cmp_num = node.depth % self.feature_num
@@ -158,7 +157,7 @@ class Knn:
                         node_stack.append(node)
                     else:
                         break
-            
+
             # 如果根节点被弹出就停止回溯
             while node_stack:
                 node = node_stack.pop()
@@ -192,7 +191,7 @@ class Knn:
                     else:
                         # 不要进子树就继续回溯
                         continue
-        
+
         # 计算各类数量
         neighbor_count = {}
         for neighbor in k_neighbor:

@@ -7,7 +7,7 @@ def perceptron_base(train_x, train_y, yita):
     """感知机的原始算法
 
     参数: 
-        x: np.ndarray类型, 行数为特征数, 列数为样本数
+        x: np.ndarray类型, 每一行是一个样本
         y: 类型格式与x相同, 值取+1或-1
         yita: 学习率, n取小于等于1的正数
 
@@ -22,8 +22,8 @@ def perceptron_base(train_x, train_y, yita):
     train_y = np.array(train_y, dtype=float)
 
     # 获得特征数与样本数
-    feature_num = train_x.shape[0]
-    total_num = train_x.shape[1]
+    total_num = train_x.shape[0]
+    feature_num = train_x.shape[1]
 
     #w, b初始化为0
     w = np.zeros((feature_num, ))
@@ -33,8 +33,8 @@ def perceptron_base(train_x, train_y, yita):
     index = 0
     count = 0
     while index < total_num:
-        if train_y[index] * (w @ train_x[..., index] + b) <= 0:
-            w += yita*train_y[index]*train_x[..., index].T
+        if train_y[index] * (w @ train_x[index] + b) <= 0:
+            w += yita*train_y[index]*train_x[index]
             b += yita*train_y[index]
             index = 0
         else:
@@ -56,7 +56,7 @@ def perceptron_dual(train_x, train_y, yita):
     """感知机的对偶算法
 
     参数: 
-        x: np.array类型, 行数为特征数, 列数为样本数
+        x: np.array类型, 每一行是一个样本
         y: 类型格式与x相同, 值取+1或-1
         yita: 学习率, n取小于等于1的正数
 
@@ -71,11 +71,11 @@ def perceptron_dual(train_x, train_y, yita):
     train_y = np.array(train_y, dtype=float)
 
     # 获得特征数与样本数
-    feature_num = train_x.shape[0]
-    total_num = train_x.shape[1]
+    total_num = train_x.shape[0]
+    feature_num = train_x.shape[1]
 
     # Gram 矩阵, 每次查第index列
-    gram_table = train_x.T @ train_x
+    gram_table = train_x @ train_x.T
 
     #a, b初始化为0
     a = np.zeros((total_num, ))
@@ -87,7 +87,7 @@ def perceptron_dual(train_x, train_y, yita):
     while index < total_num:
         if train_y[index] * (np.multiply(a, train_y) @ gram_table[..., index] + b) <= 0:
             # print(index, end=', ')
-            a[..., index] += yita
+            a[index] += yita
             b += yita*train_y[index]
             index = 0
         else:
@@ -100,7 +100,7 @@ def perceptron_dual(train_x, train_y, yita):
 
     def f(x):
         x = np.array(x)
-        return np.sign(np.multiply(a.T, train_y) @ train_x.T @ x + b)
+        return np.sign(np.multiply(a.T, train_y) @ train_x @ x + b)
 
     return (a.T, b, f)
 
@@ -113,7 +113,7 @@ class Perceptron:
     def fit(self, train_x, train_y, yita=0.01):
         """
         参数: 
-            x: np.ndarray类型, 行数为特征数, 列数为样本数
+            x: np.ndarray类型, 每一行是一个样本
             y: 类型格式与x相同, 值取+1或-1
             yita: 学习率, n取小于等于1的正数
         """
@@ -122,8 +122,8 @@ class Perceptron:
         train_y = np.array(train_y, dtype=float)
 
         # 获得特征数与样本数
-        self.feature_num = train_x.shape[0]
-        self.total_num = train_x.shape[1]
+        self.total_num = train_x.shape[0]
+        self.feature_num = train_x.shape[1]
 
         #w, b初始化为0
         self.w = np.zeros((self.feature_num, ))
@@ -133,8 +133,8 @@ class Perceptron:
         index = 0
         count = 0
         while index < self.total_num:
-            if train_y[index] * (self.w @ train_x[..., index] + self.b) <= 0:
-                self.w += yita*train_y[index]*train_x[..., index].T
+            if train_y[index] * (self.w @ train_x[index] + self.b) <= 0:
+                self.w += yita*train_y[index]*train_x[index]
                 self.b += yita*train_y[index]
                 index = 0
             else:

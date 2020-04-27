@@ -13,7 +13,7 @@ class NaiveBayes:
     def fit(self, train_x, train_y, lam=1):
         """
         参数: 
-            train_x: 训练集, 列向量形式
+            train_x: 训练集, 每一行是一个样本
             train_y: 样本类别值, 一维数组
             lam: 贝叶斯估计时lamda的值, 默认 1
         """
@@ -21,13 +21,13 @@ class NaiveBayes:
         train_x = np.array(train_x, dtype=float)
         train_y = np.array(train_y, dtype=float)
 
-        self.feature_num = train_x.shape[0]  # 特征数
-        self.total_num = train_x.shape[1]  # 样本总数
+        self.total_num = train_x.shape[0]  # 样本总数
+        self.feature_num = train_x.shape[1]  # 特征数
         self.values = []  # values保存所有维度的取值集合, 包括y
         self.prior_prob = {}  # 类别y的先验概率
         self.conditional_prob = {}  # 在某一个y下的x某一分量取某一值的条件概率 self.conditional_prob[y][xi][xij]
 
-        train_input = np.concatenate((train_x, train_y.reshape(1, self.total_num))).T
+        train_input = np.concatenate((train_x, train_y.reshape(self.total_num, 1)), axis=1)
 
         # 获取所有维度的取值集合
         for i in train_input.T:
