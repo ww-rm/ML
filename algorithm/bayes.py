@@ -1,8 +1,10 @@
 import numpy as np
+import json
 
 
 class NaiveBayes:
     """离散型朴素贝叶斯"""
+
     def __init__(self):
         self.total_num = None
         self.feature_num = None
@@ -55,7 +57,23 @@ class NaiveBayes:
                 i_list.append(j_dict)  # 添加维度各取值概率字典
             self.conditional_prob[i] = i_list  # 添加各维度的列表
 
+
         return True
+
+    def saveModel(self, filename='NaiveBayes.json'):
+        with open(filename, 'w') as f:
+            json.dump(
+                {
+                    'prior_prob': self.prior_prob,
+                    'conditinal_prob': self.conditional_prob
+                }, f)
+
+    def readModel(self, filename='NaiveBayes.json'):
+         with open(filename) as f:
+            model = json.load(f)
+            self.prior_prob = model.get('prior_prob')
+            self.conditional_prob = model.get('conditinal_prob')
+            
 
     def predict(self, x):
         x = np.array(x, dtype=float)
@@ -64,7 +82,7 @@ class NaiveBayes:
         for i in self.values[-1]:
             tmp = self.prior_prob[i]
             for j in range(self.feature_num):
-                tmp *= self.conditional_prob[i][j][x[j]]
+                tmp *= self.conditional_prob[i][j].get(x[j], 0.5)
             x_prob[i] = tmp
 
         # print(x_prob)
