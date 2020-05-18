@@ -3,28 +3,42 @@ import os
 import re
 import string
 
-from nltk import RegexpTokenizer
-from nltk.stem.snowball import SnowballStemmer
-from nltk.stem.wordnet import WordNetLemmatizer
-from nltk.stem.porter import PorterStemmer
-from nltk.stem.lancaster import LancasterStemmer
-from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
-from nltk.corpus import stopwords
+import numpy as np
 from sklearn import datasets
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+from sklearn.metrics import (accuracy_score, classification_report, f1_score,
+                             precision_score, recall_score)
 from sklearn.naive_bayes import MultinomialNB
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, classification_report
+import scipy.io
+import scipy.sparse
+from sklearn import datasets
 
-train_data = datasets.load_files('./data/20news-bydate-train', encoding='utf8', decode_error='ignore')
-test_data = datasets.load_files('./data/20news-bydate-test', encoding='utf8', decode_error='ignore')
-print('转换词频...')
-# print(train_data.get('data'))
-vectorizer1 = CountVectorizer()
-vectors1 = vectorizer1.fit_transform(train_data.get('data'))
-vectorizer2 = CountVectorizer(vocabulary=vectorizer1.get_feature_names())
-vectors2 = vectorizer2.fit_transform(test_data.get('data'))
-# print(vectors2.toarray().shape)
-NB = MultinomialNB(0.071)
-NB.fit(vectors1, train_data.get('target'))
-score = NB.predict(vectors2)
-a = classification_report(test_data.get('target'), score)
-print(a)
+a = scipy.sparse.coo_matrix(
+    [[1, 2, 0],
+     [4, 0, 6],
+     [0, 8, 9]]
+).tocsc()
+
+b = scipy.sparse.coo_matrix(
+    [[1, 2, 0],
+     [4, 0, 6],
+     [0, 8, 9]]
+).tocsr()
+
+c = scipy.sparse.coo_matrix(
+    [[1, 0, 0, 0, 0, 0, 9, 5],
+     [1, 0, 0, 0, 0, 0, 9, 5],
+     [1, 0, 0, 0, 0, 0, 9, 5],
+     [1, 0, 0, 0, 0, 0, 9, 5],
+     [1, 0, 0, 0, 0, 0, 9, 5],
+     [1, 0, 0, 0, 0, 0, 9, 5],
+     [1, 0, 0, 0, 0, 0, 9, 5],
+     [1, 0, 0, 0, 0, 0, 9, 5]]
+).toarray()
+# print(c)
+e = np.ones(8)
+print((e*c[0]))
+
+# d = [1, 0, 0, 0, 0, 0, 9, 5]
+# print('begin...')
+# print(a.dot(a.T).toarray())

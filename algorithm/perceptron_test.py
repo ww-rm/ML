@@ -1,4 +1,5 @@
 from perceptron import *
+from aaaaaaaaaaaa import Perceptron
 import numpy as np
 import random
 import matplotlib.pyplot as plt
@@ -13,18 +14,16 @@ train_y = np.array(
     [-1] * (N+bias) + [1] * (N-bias)
 )
 
-print(train_x, train_y)
+# print(train_x, train_y)
 
 classifier =  Perceptron()
-classifier.fit(train_x, train_y)
+classifier.fit(train_x, train_y, 5000000, yita=1e-3)
 
 print(classifier.w, classifier.b)
 
 result_base = perceptron_base(train_x, train_y, 1e-3)
-result_dual = perceptron_dual(train_x, train_y, 1e-3)
-# print(result_base)
-# print(result_dual)
-# print(np.multiply(result_dual[0].T, train_y)@train_x.T)
+# result_dual = perceptron_dual(train_x, train_y, 1e-3)
+print(result_base)
 
 
 def f1(x):
@@ -34,8 +33,8 @@ def f1(x):
 
 
 def f2(x):
-    w = np.multiply(result_dual[0].T, train_y)@train_x
-    b = result_dual[1]
+    w = classifier.w
+    b = classifier.b
     return -(w[0]*x+b)/w[1]
 
 

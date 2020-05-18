@@ -2,84 +2,81 @@ import json
 import math
 
 
-
 class NaiveBayes:
     """离散型朴素贝叶斯"""
 
-    def __init__(self, dictlength):
-        self.feature_num = dictlength
-        self.prior_prob = None
-        self.conditional_prob = None
+    def __init__(self):
+        self.feature_num = None
+        self.total_num = None
+        self.model = None
 
-    def fitText(self, train_x, train_y, lam=1):
+    def fitText(self, train_x, train_y, lam=0.1):
         """接受稀疏矩阵的学习
 
-        train_x的形式: [
-            [[项号, 值], ...], ...
-        ]
-        train_y的形式: [值, ...], 要纯数字标签
+        train_x: coo稀疏矩阵
+        train_y: [值, ...], 要纯数字标签
         """
-        
+
         print('train text NaiveBayes...')
-        self.total_num = len(train_y)  # 样本数
-        self.prior_prob = {}  # 类别y的先验概率
-        self.conditional_prob = {}  # 在某一个y下的所有单词概率 self.conditional_prob[y][index]
+        self.total_num = train_x.shape[0]  # 样本数
+        self.feature_num = train_x.shape[1]
+        self.model = {str(label): [0, [0]*self.feature_num] for label in set(train_y)}
+        # self.model = [先验概率, [单词一的概率, 单词二, ...]]
 
         # 计算类别的先验概率
         for label in train_y:
-            if self.prior_prob.get(str(label)) is None:
-                self.prior_prob[str(label)] = 1
-            else:
-                self.prior_prob[str(label)] += 1
-        for label in self.prior_prob:
-            self.prior_prob[label] = (self.prior_prob[label]+lam)/(self.total_num+len(self.prior_prob)*lam)
-        # print(self.prior_prob)
+            self.model[str(label)][0] += 1
+        for label in self.model:
+            self.model[label][0] = (self.model[label][0]+lam)/(self.total_num+len(self.model)*lam)
 
         # 计算每个类每个每个单词出现概率
-        # 准备一下数据格式
-        for label in self.prior_prob:
-            self.conditional_prob[label] = [0]*self.feature_num
-
-        # {'类别一': [单词0出现的次数/概率, 单词1出现的次数/概率, ...]
+        # {'类别一': [xxx, [单词0出现的次数/概率, 单词1出现的次数/概率, ...]]
         #  '类别二': [...]
         # }
         # 统计训练集中每个类别单词出现的次数, 并统计每个类别的总词数
-        for sample, label in zip(train_x, train_y):
-            for index, word_count in sample:
-                # 累加次数
-                self.conditional_prob[str(label)][index] += word_count
+        for row, col, word_count in zip(train_x.row, train_x.col, train_x.data):
+            self.model[str(train_y[row])][1][col] += word_count
 
         # 转换成概率
-        for label in self.conditional_prob:
-            words_count = sum(self.conditional_prob[label])
+        for label in self.model:
+            words_count = sum(self.model[label][1])
             for index in range(self.feature_num):
-                self.conditional_prob[label][index] = (self.conditional_prob[label][index]+lam)/(words_count+self.feature_num*lam)
+                self.model[label][1][index] = (self.model[label][1][index]+lam)/(words_count+self.feature_num*lam)
 
-        # print(self.conditional_prob)
+        # print(self.model)
         print('train done...')
 
-
     def predictText(self, x):
-        """返回值是数字结果"""
+        """返回值是数字结果
+        
+        x:
+            必须是csr稀疏矩阵,
+            而且是单个样本
+        """
 
         result = ('', float('-inf'))
 
         # 对每一个类别计算概率
-        for label in self.prior_prob:
-            tmp = math.log(self.prior_prob[label])
-            for index, word_count in x:
-                tmp += word_count*math.log(self.conditional_prob[label][index])
-            # print(tmp)
-            if tmp > result[1]:
-                result = (label, tmp)
+        for label in self.model:
+            probaility = math.log(self.model[label][0])
+            for index, word_count in zip(x.indices, x.data):
+                probaility += word_count*math.log(self.model[label][1][index])
+            if probaility > result[1]:
+                result = (label, probaility)
 
         return int(result[0])
 
     def predictTextAll(self, samples):
-        print(f'predict {len(samples)} samples...')
+        """接受稀疏矩阵的预测
+
+        samples:
+            coo稀疏矩阵
+        """
+
+        print(f'predict {samples.shape[0]} samples...')
         results = []
 
-        for sample in samples:
+        for sample in samples.tocsr():
             results.append(self.predictText(sample))
 
         print('predict done...')
@@ -88,19 +85,13 @@ class NaiveBayes:
     def saveModel(self, filename='NaiveBayes.json'):
         print('save NaiveBayes model...')
         with open(filename, 'w') as f:
-            json.dump(
-                {
-                    'prior_prob': self.prior_prob,
-                    'conditinal_prob': self.conditional_prob
-                }, f)
+            json.dump(self.model, f)
         print('save done...')
 
     def readModel(self, filename='NaiveBayes.json'):
         print('read NaiveBayes model...')
         with open(filename) as f:
-            model = json.load(f)
-            self.prior_prob = model.get('prior_prob')
-            self.conditional_prob = model.get('conditinal_prob')
+            self.model = json.load(f)
         print('read done...')
 
     def fit(self, train_x, train_y):
