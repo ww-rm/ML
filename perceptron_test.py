@@ -30,7 +30,7 @@ if __name__ == "__main__":
     # pyplot.plot()
     # pyplot.show()
 
-    classfier.fit(train_x, train_y, 80000)
+    classfier.fit(train_x, train_y, 50000)
     # # # classfier.saveModel('./model/PerceptronC.json') # 10w, 0.01
     # classfier.readModel('./model/PerceptronC.json')
     predict_y = classfier.predictAll(test_x)

@@ -28,6 +28,7 @@ def preProcess(datapath, savepath, categories=None, tokenizer=None, wordsdict=No
 
     stop_words = stopwords.words('english')
 
+    # 读取数据
     print('read data...')
     data = datasets.load_files(datapath, categories=categories, encoding='utf8', decode_error='ignore')
 
@@ -62,14 +63,10 @@ def preProcess(datapath, savepath, categories=None, tokenizer=None, wordsdict=No
 
 
 if __name__ == "__main__":
-    pass
-    # 保存类别列表
-    # categories = os.listdir('./data/20news-bydate-train')
-    # with open('./data/categories.json', 'w', encoding='utf8') as f:
-    #     json.dump(categories, f)
-    # # 训练集
-    # preProcess('./data/20news-bydate-train', './data/pre-train', myTokenizer)
-    # # 测试集
-    # with open('./data/wordsdict.dict', encoding='utf8') as f:
-    #     wordsdict = json.load(f)
-    # preProcess('./data/20news-bydate-test/', './data/pre-test', myTokenizer, wordsdict=wordsdict)
+    categories = os.listdir('./data/20news-bydate-train')
+    # 训练集
+    preProcess('./data/20news-bydate-train', './data/pre-train', categories, myTokenizer)
+    # 测试集
+    with open('./data/wordsdict.dict', encoding='utf8') as f:
+        wordsdict = json.load(f)
+    preProcess('./data/20news-bydate-test/', './data/pre-test', categories, myTokenizer, wordsdict=wordsdict)

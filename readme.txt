@@ -15,5 +15,6 @@
     pre-test/: 预处理之后的测试集, 内容同上
     stopwords.dict: 预处理中的停用词词典
     wordsdict.dict: 预处理之后从测试集中生成的词典
+    categories.json: 保存了类别值字符串
 
 ./model/: 存储各分类器训练之后的模型文件
