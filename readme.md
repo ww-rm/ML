@@ -1,4 +1,4 @@
-# 关于f所有fit的参数
+# 关于algorithm下f所有fit的参数
 
     train_x 和 train_y都是如下形式:
     (X1, X2, X3, X4, ..., Xn-1, Xn)

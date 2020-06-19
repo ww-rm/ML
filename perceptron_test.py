@@ -1,50 +1,38 @@
-from perceptron import *
-import numpy as np
-import random
-import matplotlib.pyplot as plt
+import json
 
-N = 50
-bias = 0
+import scipy.sparse
+from matplotlib import pyplot
+from sklearn.metrics import classification_report, f1_score
 
-train_x = np.concatenate(
-    (np.random.rand(2, N)*(10)+10, np.random.rand(2, N)*(10)+1), 1).T
+from perceptron import PerceptronC
 
-train_y = np.array(
-    [-1] * (N+bias) + [1] * (N-bias)
-)
+if __name__ == "__main__":
+    classfier = PerceptronC()
+    train_x = scipy.sparse.load_npz('./data/pre-train/tfidf.npz')
+    with open('./data/pre-train/labels.json', encoding='utf8') as f:
+        train_y = json.load(f)
+    test_x = scipy.sparse.load_npz('./data/pre-test/tfidf.npz')
+    with open('./data/pre-test/labels.json', encoding='utf8') as f:
+        test_y = json.load(f)
 
-# print(train_x, train_y)
+    # # 这一段代码用来调参的
+    # tongji = []
+    # for i in range(1, 101):
+    #     print(f'{i/100}...')
+    #     classfier.fit(train_x, train_y, yita=i/100)
+    #     predict_y = classfier.predictAll(test_x)
+    #     results = f1_score(test_y, predict_y, average='macro')
+    #     print(results)
+    #     tongji.append((i/100, results))
 
-classifier =  Perceptron()
-classifier.fit(train_x, train_y)
+    # pyplot.xticks([i/100 for i in range(1, 101)])
+    # pyplot.scatter([i[0] for i in tongji], [i[1] for i in tongji])
+    # pyplot.plot()
+    # pyplot.show()
 
-print(classifier.w, classifier.b)
-
-# result_base = perceptron_base(train_x, train_y, 1e-3)
-# result_dual = perceptron_dual(train_x, train_y, 1e-3)
-# print(result_base)
-# print(result_dual)
-# print(np.multiply(result_dual[0].T, train_y)@train_x.T)
-
-
-# def f1(x):
-#     w = result_base[0]
-#     b = result_base[1]
-#     return -(w[0]*x+b)/w[1]
-
-
-# def f2(x):
-#     w = np.multiply(result_dual[0].T, train_y)@train_x
-#     b = result_dual[1]
-#     return -(w[0]*x+b)/w[1]
-
-
-# line_x = [0, 50]
-# plt.plot(line_x, list(map(f1, line_x)), color='yellow')
-# plt.plot(line_x, list(map(f2, line_x)), color='green')
-# plt.scatter(train_x[:N+bias, 0], train_x[:N+bias, 1], color='blue')
-# plt.scatter(train_x[N+bias:, 0], train_x[N+bias:, 1], color='red')
-
-# plt.show()
-# from scipy import sparse
-# sparse.c
+    classfier.fit(train_x, train_y, 80000)
+    # # # classfier.saveModel('./model/PerceptronC.json') # 10w, 0.01
+    # classfier.readModel('./model/PerceptronC.json')
+    predict_y = classfier.predictAll(test_x)
+    results = classification_report(test_y, predict_y)
+    print(results)

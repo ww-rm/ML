@@ -1,5 +1,6 @@
-import numpy as np
 import json
+
+import numpy as np
 
 
 class Perceptron:
@@ -9,7 +10,7 @@ class Perceptron:
         self.total_num = None
         self.feature_num = None
 
-    def fit(self, train_x, train_y, iter_times, yita):
+    def fit(self, train_x, train_y, iter_times):
         """
         参数:
             train_x: csr格式稀疏矩阵
@@ -26,19 +27,18 @@ class Perceptron:
         print('calculate gram table...')
         gram_table = train_x.dot(train_x.T).toarray()
 
-        # w, b初始化为0
+        # a, b初始化为0
         self.a = np.zeros(self.total_num)
         self.b = 0.0
 
         print('begin train...')
         # 迭代iter_times次
-        index = 0
         count = 0  # 用来加快训练速度
+        index = 0
         for _ in range(iter_times):
             if train_y[index] * ((self.a*train_y).dot(gram_table[..., index]) + self.b) <= 0:
-                self.a[index] += yita
-                self.b += yita*train_y[index]
-                # print(self.b)
+                self.a[index] += 1
+                self.b += 1*train_y[index]
                 count = 0
             else:
                 count += 1
@@ -55,6 +55,10 @@ class Perceptron:
         return True
 
     def predict(self, x):
+        """
+        x是行向量
+        """
+
         return self.w*x.T + self.b
 
 
@@ -68,7 +72,7 @@ class PerceptronC:
         self.classifier = Perceptron()
         self.model = None
 
-    def fit(self, train_x, train_y, iter_times=100000, yita=0.01):
+    def fit(self, train_x, train_y, iter_times=100000):
         """
         参数:
             x: coo稀疏矩阵
@@ -94,7 +98,7 @@ class PerceptronC:
                     current_y[index] = -1
 
             print(f'label {label}...')
-            self.classifier.fit(train_x, current_y, iter_times, yita)
+            self.classifier.fit(train_x, current_y, iter_times)
             print(f'label {label} done...')
 
             # 保存当前类别的 w 和 b
@@ -105,6 +109,10 @@ class PerceptronC:
         return True
 
     def predict(self, x):
+        """
+        接受的是csr稀疏矩阵
+        """
+        
         # 从所有类别中选出值最大的那个
         result = ('', float('-inf'))
         for label, w_b in self.model.items():
@@ -116,6 +124,10 @@ class PerceptronC:
         return int(result[0])
 
     def predictAll(self, samples):
+        """
+        samples是coo稀疏矩阵
+        """
+
         print(f'predict {samples.shape[0]} samples...')
         results = []
 

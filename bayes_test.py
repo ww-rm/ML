@@ -1,21 +1,38 @@
-# 这个文件是用来测试sklearn的贝叶斯文本分类结果的, 用来对比f1得分的
+import json
 
-from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
-from sklearn import datasets
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, classification_report
+import scipy.sparse
+from matplotlib import pyplot
+from sklearn.metrics import classification_report, f1_score
 
-train_data = datasets.load_files('./data/20news-bydate-train', encoding='utf8', decode_error='ignore')
-test_data = datasets.load_files('./data/20news-bydate-test', encoding='utf8', decode_error='ignore')
-print('转换词频...')
-# print(train_data.get('data'))
-vectorizer1 = CountVectorizer()
-vectors1 = vectorizer1.fit_transform(train_data.get('data'))
-vectorizer2 = CountVectorizer(vocabulary=vectorizer1.get_feature_names())
-vectors2 = vectorizer2.fit_transform(test_data.get('data'))
-# print(vectors2.toarray().shape)
-NB = MultinomialNB(0.071)
-NB.fit(vectors1, train_data.get('target'))
-score = NB.predict(vectors2)
-a = classification_report(test_data.get('target'), score)
-print(a)
+from bayes import NaiveBayes
+
+if __name__ == "__main__":
+    classfier = NaiveBayes()
+    train_x = scipy.sparse.load_npz('./data/pre-train/tfidf.npz')
+    with open('./data/pre-train/labels.json', encoding='utf8') as f:
+        train_y = json.load(f)
+    test_x = scipy.sparse.load_npz('./data/pre-test/tfidf.npz')
+    with open('./data/pre-test/labels.json', encoding='utf8') as f:
+        test_y = json.load(f)
+    
+    # 这一段代码用来调参的
+    # tongji = []
+    # for i in range(1, 101):
+    #     print(f'{i/1000}...')
+    #     classfier.fitText(train_x, train_y, i/1000)
+    #     predict_y = classfier.predictTextAll(test_x)
+    #     results = f1_score(test_y, predict_y, average='macro')
+    #     print(results)
+    #     tongji.append((i/1000, results))
+    
+    # pyplot.xticks([i/1000 for i in range(1, 101)])
+    # pyplot.scatter([i[0] for i in tongji], [i[1] for i in tongji])
+    # pyplot.plot()
+    # pyplot.show()
+
+    classfier.fitText(train_x, train_y, 0.024)
+    # # # classfier.saveModel('./model/bayes_tfidf_0024.json') # count: 0.071 tfidf: 0.024
+    # classfier.readModel('./model/bayes_tfidf_0024.json')
+    predict_y = classfier.predictTextAll(test_x)
+    results = classification_report(test_y, predict_y)
+    print(results)

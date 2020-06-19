@@ -13,8 +13,10 @@ class NaiveBayes:
     def fitText(self, train_x, train_y, lam=0.1):
         """接受稀疏矩阵的学习
 
-        train_x: coo稀疏矩阵
-        train_y: [值, ...], 要纯数字标签
+        train_x: 
+            coo稀疏矩阵
+        train_y:
+            [值, ...], 要纯数字标签
         """
 
         print('train text NaiveBayes...')
@@ -93,6 +95,3 @@ class NaiveBayes:
         with open(filename) as f:
             self.model = json.load(f)
         print('read done...')
-
-    def fit(self, train_x, train_y):
-        pass

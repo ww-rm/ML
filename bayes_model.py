@@ -30,9 +30,9 @@ if __name__ == "__main__":
     # pyplot.plot()
     # pyplot.show()
 
-    classfier.fitText(train_x, train_y, 0.024)
+    # classfier.fitText(train_x, train_y, 0.024)
     # # # classfier.saveModel('./bayes_tfidf_0024.json') # count: 0.071 tfidf: 0.024
-    # classfier.readModel('./bayes_tfidf_0024.json')
+    classfier.readModel('./bayes_tfidf_0024.json')
     predict_y = classfier.predictTextAll(test_x)
     results = classification_report(test_y, predict_y)
     print(results)

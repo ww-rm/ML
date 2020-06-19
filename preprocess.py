@@ -2,14 +2,13 @@ import json
 import os
 import re
 
+import scipy.sparse
 from nltk.corpus import stopwords
-from nltk.stem.porter import PorterStemmer
 from nltk.stem.snowball import SnowballStemmer
 from nltk.stem.wordnet import WordNetLemmatizer
-from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
-import scipy.io
-import scipy.sparse
 from sklearn import datasets
+from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+
 
 
 def myTokenizer(text):
@@ -22,47 +21,44 @@ def myTokenizer(text):
     return tokens
 
 
-def preProcess(datapath, savepath, tokenizer=None, wordsdict=None):
+def preProcess(datapath, savepath, categories=None, tokenizer=None, wordsdict=None):
     """
-    把读取的data向量化, 并保存稀疏矩阵到filepath
+    从datapath读取原始数据, 并保存稀疏矩阵到savepath
     """
 
     stop_words = stopwords.words('english')
-    with open('./data/categories.json', encoding='utf8') as f:
-        categories = json.load(f)
 
-    print('读取文件...')
+    print('read data...')
     data = datasets.load_files(datapath, categories=categories, encoding='utf8', decode_error='ignore')
-    # print(data.get('target_names'))
+
     # 词频矩阵
-    print('计算词频...')
+    print('calculate words count...')
     vectorizer = CountVectorizer(stop_words=stop_words, tokenizer=tokenizer, vocabulary=wordsdict)
     vectors = vectorizer.fit_transform(data.get('data', ''))
 
     # 保存词典
     if wordsdict is None:
-        print('保存词典...')
+        print('save wordsdict...')
         wordsdict = vectorizer.get_feature_names()
         with open('./data/wordsdict.dict', 'w', encoding='utf8') as f:
             json.dump(wordsdict, f)
 
-    # 保存词频和tfidf的稀疏矩阵
-    print('保存词频稀疏矩阵...')
-    scipy.io.mmwrite(savepath+'/'+'count.mtx', vectors.tocoo())
-
     # 转换成tfidf矩阵
-    print('计算tfidf...')
+    print('calculate tfidf...')
     tfidf_trans = TfidfTransformer()
     tfidf_vectors = tfidf_trans.fit_transform(vectors)
+    
+    # 保存词频和tfidf的稀疏矩阵
+    print('save words count sparse...')
+    scipy.sparse.save_npz(savepath+'/'+'count.npz', vectors.tocoo())
 
-    print('保存tfidf稀疏矩阵...')
-    scipy.io.mmwrite(savepath+'/'+'tfidf.mtx', tfidf_vectors.tocoo())
+    print('save tfidf sparse...')
+    scipy.sparse.save_npz(savepath+'/'+'tfidf.npz', tfidf_vectors.tocoo())
 
-    print('保存标签值...')
+    print('save labels...')
     with open(savepath+'/'+'labels.json', 'w', encoding='utf8') as f:
         json.dump(data.get('target').tolist(), f)
 
-    print('预处理结束...')
 
 
 if __name__ == "__main__":
